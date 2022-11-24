@@ -7,6 +7,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
 
+
 public class GameGUI extends JFrame {
     private static GameGUI gui;
     private static Image backgroundIMG;

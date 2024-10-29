@@ -1,20 +1,32 @@
 package bitcoinGUI;
+
 import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
+
 public class CreateFile {
-    public static void createScoreFile(){
-        try{
-            File scoreFile = new File("scoreFile.txt");
-            if(scoreFile.createNewFile()){
-                JOptionPane.showMessageDialog(null, "File created: " + scoreFile.getName(), "File Status", JOptionPane.INFORMATION_MESSAGE);
+
+    public static void createScoreFile(String filePath) {
+        File scoreFile = new File(filePath);
+
+        try {
+            if (scoreFile.createNewFile()) {
+                showMessage("File created: " + scoreFile.getName());
+            } else {
+                showMessage("File already exists.");
             }
-            else{
-                JOptionPane.showMessageDialog(null, "File already exist.", "File Status", JOptionPane.INFORMATION_MESSAGE);
-            }
-        }catch (IOException e){
-            JOptionPane.showMessageDialog(null, "An error occured.", "File Status", JOptionPane.INFORMATION_MESSAGE);
+        } catch (IOException e) {
+            showMessage("An error occurred: " + e.getMessage());
             e.printStackTrace();
         }
+    }
+
+    private static void showMessage(String message) {
+        JOptionPane.showMessageDialog(null, message, "File Status", JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    // For backward compatibility, this overloaded method calls the parameterized one.
+    public static void createScoreFile() {
+        createScoreFile("scoreFile.txt");
     }
 }

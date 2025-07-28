@@ -5,7 +5,12 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import javax.swing.Timer;
 import java.io.IOException;
+
+// Manages saving/loading the high score
+import bitcoinGUI.ScoreManager;
+import bitcoinGUI.PlayerProfile;
 
 public class GameGUI extends JFrame {
     private static GameGUI gui;
@@ -14,19 +19,31 @@ public class GameGUI extends JFrame {
     private static float dropY = -150, dropX;
     private static float dropSpeed = 22;
     private static int score = 0;
+    private static int level = 1;
+    private static int highScore = 0;
+    private static final int SCORE_PER_LEVEL = 10;
+    private static PlayerProfile profile;
     private static final float restartX = 200, restartY = 350;
+    private static Timer timer;
 
-    public static void createWindow() throws IOException {
+    public static void createWindow(String playerName) throws IOException {
         // Load images
         backgroundIMG = ImageIO.read(GameGUI.class.getResourceAsStream("backgroundIMG.png"));
         gameOver = ImageIO.read(GameGUI.class.getResourceAsStream("gameOver.png"));
         drop = ImageIO.read(GameGUI.class.getResourceAsStream("drop.png"));
         restartGame = ImageIO.read(GameGUI.class.getResourceAsStream("restartGame.png"));
 
+        // Initialize player profile and load high score
+        profile = new PlayerProfile(playerName);
+        highScore = profile.getHighScore();
+
         // Set up JFrame
         gui = new GameGUI();
         gui.setDefaultCloseOperation(EXIT_ON_CLOSE);
-        gui.setTitle("Bitcoin Catcher");
+        gui.setTitle("Bitcoin Catcher | " + profile.getName() +
+                " | Level: " + level +
+                " | Score: " + score +
+                " | High Score: " + highScore);
         gui.setResizable(false);
         gui.setSize(900, 600);
         gui.setLocationRelativeTo(null);
@@ -38,16 +55,32 @@ public class GameGUI extends JFrame {
         gameField.addMouseListener(new DropMouseListener());
         gui.add(gameField);
         gui.setVisible(true);
+
+        timer = new Timer(16, e -> updateGame());
+        timer.start();
+    }
+
+    private static void updateGame() {
+        long currentTime = System.nanoTime();
+        float deltaTime = (currentTime - lastFrameTime) * 0.00000001f;
+        lastFrameTime = currentTime;
+        if (dropY <= gui.getHeight()) {
+            dropY += dropSpeed * deltaTime;
+        } else {
+            timer.stop();
+        }
+        gui.repaint();
     }
 
     // Logic for repainting
     public static void onRepaint(Graphics g) {
         g.drawImage(backgroundIMG, 0, 0, null);
-        long currentTime = System.nanoTime();
-        float deltaTime = (currentTime - lastFrameTime) * 0.00000001f;
-        lastFrameTime = currentTime;
-
-        dropY += dropSpeed * deltaTime;
+        g.setColor(Color.WHITE);
+        g.setFont(new Font("Arial", Font.BOLD, 20));
+        g.drawString("Player: " + profile.getName() +
+                "  Level: " + level +
+                "  Score: " + score +
+                "  High Score: " + highScore, 10, 25);
 
         if (dropY > gui.getHeight()) {
             g.drawImage(gameOver, 25, 0, null);
@@ -62,7 +95,6 @@ public class GameGUI extends JFrame {
         protected void paintComponent(Graphics g) {
             super.paintComponent(g);
             onRepaint(g);
-            if (dropY < getHeight()) repaint();
         }
     }
 
@@ -76,7 +108,15 @@ public class GameGUI extends JFrame {
                 resetDrop();
                 score++;
                 dropSpeed += 3;
-                gui.setTitle("Bitcoin Catcher | Your Score: " + score);
+                if (score > highScore) {
+                    highScore = score;
+                    profile.updateHighScore(highScore);
+                }
+                level = score / SCORE_PER_LEVEL + 1;
+                gui.setTitle("Bitcoin Catcher | " + profile.getName() +
+                        " | Level: " + level +
+                        " | Score: " + score +
+                        " | High Score: " + highScore);
             }
 
             // Check if restart button is clicked
@@ -96,15 +136,21 @@ public class GameGUI extends JFrame {
         }
 
         private void resetDrop() {
-            dropY = -100;
+            dropY = -100 - (float) (Math.random() * 300);
             dropX = (float) (Math.random() * (gui.getWidth() - drop.getWidth(null)));
         }
 
         private void resetGame() {
             score = 0;
             dropSpeed = 22;
+            level = 1;
             resetDrop();
-            gui.setTitle("Bitcoin Catcher | Your Score: " + score);
+            lastFrameTime = System.nanoTime();
+            timer.restart();
+            gui.setTitle("Bitcoin Catcher | " + profile.getName() +
+                    " | Level: " + level +
+                    " | Score: " + score +
+                    " | High Score: " + highScore);
         }
     }
 }

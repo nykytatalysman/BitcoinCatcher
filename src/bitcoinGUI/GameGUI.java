@@ -56,13 +56,17 @@ public class GameGUI extends JFrame {
         gui.add(gameField);
         gui.setVisible(true);
 
+        // Start with the drop at a random position
+        randomizeDrop();
+
         timer = new Timer(16, e -> updateGame());
         timer.start();
     }
 
     private static void updateGame() {
         long currentTime = System.nanoTime();
-        float deltaTime = (currentTime - lastFrameTime) * 0.00000001f;
+        // time difference in seconds
+        float deltaTime = (currentTime - lastFrameTime) * 0.000000001f;
         lastFrameTime = currentTime;
         if (dropY <= gui.getHeight()) {
             dropY += dropSpeed * deltaTime;
@@ -70,6 +74,15 @@ public class GameGUI extends JFrame {
             timer.stop();
         }
         gui.repaint();
+    }
+
+    /**
+     * Place the drop at a random position above the window so the start
+     * location is less predictable.
+     */
+    private static void randomizeDrop() {
+        dropY = -100 - (float) (Math.random() * 300);
+        dropX = (float) (Math.random() * (gui.getWidth() - drop.getWidth(null)));
     }
 
     // Logic for repainting
@@ -136,8 +149,7 @@ public class GameGUI extends JFrame {
         }
 
         private void resetDrop() {
-            dropY = -100 - (float) (Math.random() * 300);
-            dropX = (float) (Math.random() * (gui.getWidth() - drop.getWidth(null)));
+            randomizeDrop();
         }
 
         private void resetGame() {

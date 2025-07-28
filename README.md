@@ -7,6 +7,8 @@ A simple Java game where you catch falling bitcoins. The game keeps track of you
 - Increasing difficulty as you catch more coins
 - Restart option when the coin hits the ground
 - Smooth animation using a Swing timer
+- Coins start from random positions for variety
+- High scores are saved under a `scores` folder
 
 ## Building and Running
 1. Compile the sources:

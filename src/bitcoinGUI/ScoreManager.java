@@ -7,13 +7,21 @@ import java.io.*;
  */
 public class ScoreManager {
 
-    private static String fileNameFor(String playerName) {
+    private static File scoresDir() {
+        File dir = new File("scores");
+        if (!dir.exists()) {
+            dir.mkdirs();
+        }
+        return dir;
+    }
+
+    private static File fileFor(String playerName) {
         String safeName = playerName.replaceAll("[^a-zA-Z0-9_-]", "_");
-        return "score_" + safeName + ".txt";
+        return new File(scoresDir(), "score_" + safeName + ".txt");
     }
 
     public static int loadHighScore(String playerName) {
-        File file = new File(fileNameFor(playerName));
+        File file = fileFor(playerName);
         if (!file.exists()) {
             saveHighScore(playerName, 0);
             return 0;
@@ -28,7 +36,7 @@ public class ScoreManager {
     }
 
     public static void saveHighScore(String playerName, int score) {
-        File file = new File(fileNameFor(playerName));
+        File file = fileFor(playerName);
         try (FileWriter writer = new FileWriter(file)) {
             writer.write(String.valueOf(score));
         } catch (IOException e) {

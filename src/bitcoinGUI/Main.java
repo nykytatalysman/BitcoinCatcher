@@ -17,7 +17,10 @@ public class Main {
     }
 
     private static void initializeGame() throws IOException {
-        CreateFile.createScoreFile();
-        GameGUI.createWindow();
+        String name = JOptionPane.showInputDialog(null, "Enter your player name:", "Player Setup", JOptionPane.QUESTION_MESSAGE);
+        if (name == null || name.trim().isEmpty()) {
+            name = "Player";
+        }
+        GameGUI.createWindow(name.trim());
     }
 }

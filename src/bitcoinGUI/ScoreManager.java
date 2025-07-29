@@ -24,6 +24,13 @@ public class ScoreManager {
         File file = fileFor(playerName);
         if (!file.exists()) {
             saveHighScore(playerName, 0);
+public class ScoreManager {
+    private static final String SCORE_FILE = "scoreFile.txt";
+
+    public static int loadHighScore() {
+        File file = new File(SCORE_FILE);
+        if (!file.exists()) {
+            saveHighScore(0);
             return 0;
         }
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
@@ -38,6 +45,8 @@ public class ScoreManager {
     public static void saveHighScore(String playerName, int score) {
         File file = fileFor(playerName);
         try (FileWriter writer = new FileWriter(file)) {
+    public static void saveHighScore(int score) {
+        try (FileWriter writer = new FileWriter(SCORE_FILE)) {
             writer.write(String.valueOf(score));
         } catch (IOException e) {
             e.printStackTrace();
